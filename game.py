@@ -8,7 +8,6 @@ BOARD_SIZE = 8
 SQUARE_SIZE = SCREEN_WIDTH // BOARD_SIZE
 COLOR1 = pygame.Color(225, 216, 17)
 COLOR2 = pygame.Color(255, 246, 196)
-SELECT_COLOR = (186, 202, 68, 180)
 
 def draw_board(screen):
     for row in range(8):
@@ -61,12 +60,8 @@ def main():
 
                 if selected_square is None:
                     if board.piece_at(clicked_square):
-                        pygame.draw.rect(screen, SELECT_COLOR,pygame.Rect(8 * SQUARE_SIZE, 8 * SQUARE_SIZE,
-                                         SQUARE_SIZE, SQUARE_SIZE))
                         selected_square = clicked_square
                 else:
-                    pygame.draw.rect(screen, SELECT_COLOR, pygame.Rect(8 * SQUARE_SIZE, 8 * SQUARE_SIZE,
-                                                                       SQUARE_SIZE, SQUARE_SIZE))
                     move = chess.Move(selected_square, clicked_square)
                     if move in board.legal_moves:
                         board.push(move)
