@@ -1,6 +1,5 @@
 import pygame
 import chess
-from PIL import Image
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
@@ -30,15 +29,13 @@ def load_pieces():
     symbols = ['P','R','N','B','Q','K','p','r','n','b','q','k']
     for s in symbols:
         prefix = 'w' if s.isupper() else 'b'
-        image = Image.open(f'images/{prefix}{s.upper()}.png')
-        image.save('temp.bmp')
-        img = pygame.transform.scale(pygame.image.load('temp.bmp'), (SQUARE_SIZE, SQUARE_SIZE))
-        pieces[s] = img
+        image = f'images/{prefix}{s.upper()}.png'
+        pieces[s] = pygame.transform.scale(pygame.image.load(image).convert_alpha(), (SQUARE_SIZE, SQUARE_SIZE))
     return pieces
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((SCREEN_WIDTH + 300, SCREEN_HEIGHT))
     pygame.display.set_caption('Chess')
     clock = pygame.time.Clock()
     board = chess.Board()
@@ -54,24 +51,40 @@ def main():
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
-                col = x // SQUARE_SIZE
-                row = y // SQUARE_SIZE
-                clicked_square = chess.square(col, 7 - row)
+                if x <= 800:
+                    col = x // SQUARE_SIZE
+                    row = y // SQUARE_SIZE
+                    clicked_square = chess.square(col, 7 - row)
 
-                if selected_square is None:
-                    if board.piece_at(clicked_square):
-                        selected_square = clicked_square
-                else:
-                    move = chess.Move(selected_square, clicked_square)
-                    if move in board.legal_moves:
-                        board.push(move)
-                    selected_square = None
+                    if selected_square is None:
+                        if board.piece_at(clicked_square):
+                            selected_square = clicked_square
+                    else:
+                        move = chess.Move(selected_square, clicked_square)
+                        if move in board.legal_moves:
+                            board.push(move)
+                        selected_square = None
+
         if board.is_checkmate():
-            print("Checkmate!")
-            running = False
+            pygame.draw.rect(screen, (255,255,255,0), (3 * SQUARE_SIZE, 3 * SQUARE_SIZE, SQUARE_SIZE * 2, SQUARE_SIZE * 2))
+            for event in pygame.event.get():
+                if event.type == pygame.K_SPACE:
+                    clock = pygame.time.Clock()
+                    board = chess.Board()
+                    pieces = load_pieces()
+                    selected_square = None
+                elif event.type == pygame.K_ESCAPE:
+                    running = False
         elif board.is_stalemate():
-            print("Stalemate!")
-            running = False
+            pygame.draw.rect(screen, (255, 255, 255, 0),(3 * SQUARE_SIZE, 2 * SQUARE_SIZE, SQUARE_SIZE * 3, SQUARE_SIZE * 2))
+            for event in pygame.event.get():
+                if event.type == pygame.K_SPACE:
+                    clock = pygame.time.Clock()
+                    board = chess.Board()
+                    pieces = load_pieces()
+                    selected_square = None
+                elif event.type == pygame.K_ESCAPE:
+                    running = False
         pygame.display.flip()
         clock.tick(60)
     pygame.quit()
